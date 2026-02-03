@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 로그 테마 컨버터</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { display: flex; gap: 20px; }
+        .input-section { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        textarea { width: 100%; height: 250px; padding: 10px; border: 1px solid #ccc; font-family: monospace; }
+        .output-section { flex: 1; }
+        button { padding: 15px; cursor: pointer; background: #4a3427; color: white; border: none; font-weight: bold; }
+        button:hover { background: #634635; }
+        .result-code { background: #fff; padding: 15px; border: 1px dashed #4a3427; word-break: break-all; white-space: pre-wrap; font-size: 12px; height: 500px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>🎨 HTML 로그 테마 생성기</h2>
+    
+    <div class="container">
+        <div class="input-section">
+            <label><strong>1. HTML 테마 틀 (AI에게 받은 코드)</strong><br><small>본문이 들어갈 자리에 {{CONTENT}}를 넣어주세요.</small></label>
+            <textarea id="themeInput" placeholder="<details>... {{CONTENT}} ...</details>"></textarea>
+            
+            <label><strong>2. 소설 텍스트 입력</strong></label>
+            <textarea id="novelInput" placeholder="소설 내용을 입력하세요."></textarea>
+            
+            <button onclick="generateLog()">완성된 HTML 생성하기</button>
+        </div>
+
+        <div class="output-section">
+            <label><strong>3. 결과 코드 (복사해서 사용하세요)</strong></label>
+            <div id="resultCode" class="result-code"></div>
+        </div>
+    </div>
+
+    <script>
+        function generateLog() {
+            const theme = document.getElementById('themeInput').value;
+            let content = document.getElementById('novelInput').value;
+
+            // [정규식 파싱 규칙]
+            
+            // 1. 큰따옴표 대사 강조 (색상 및 볼드)
+            content = content.replace(/"([^"]*)"/g, '<span style="color: #8d735b; font-weight: bold;">"$1"</span>');
+            
+            // 2. 이탤릭체 ( *내용* 을 <i>내용</i>으로)
+            content = content.replace(/\*([^\*]*)\*/g, '<i style="opacity: 0.8;">$1</i>');
+            
+            // 3. 문단 줄바꿈 처리 (엔터를 <p>태그로 전환)
+            const paragraphs = content.split('\n').filter(p => p.trim() !== '');
+            const htmlParagraphs = paragraphs.map(p => `<p style="margin-bottom: 25px; letter-spacing: -0.02em;">${p}</p>`).join('');
+
+            // [테마와 결합]
+            if (theme.includes('{{CONTENT}}')) {
+                const finalHtml = theme.replace('{{CONTENT}}', htmlParagraphs);
+                document.getElementById('resultCode').innerText = finalHtml;
+            } else {
+                alert('테마 코드 안에 {{CONTENT}} 치환자가 필요합니다!');
+            }
+        }
+    </script>
+</body>
+</html>
