@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그 컨버터 - AI 테마 편집기</title>
+    <title>로그 컨버터 Pro - AI 테마 편집기</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -40,11 +40,55 @@
             font-size: 0.95rem;
         }
         
-        .workspace {
+        /* 탭 네비게이션 */
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            padding: 0 20px;
+            gap: 10px;
+            overflow-x: auto;
+        }
+        
+        .tab-btn {
+            padding: 15px 25px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 0.95rem;
+        }
+        
+        .tab-btn:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+        
+        /* 탭 컨텐츠 */
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 2단 레이아웃 */
+        .two-column {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            padding: 30px;
         }
         
         .panel {
@@ -77,6 +121,8 @@
         .input-group small {
             color: #888;
             font-size: 0.8rem;
+            display: block;
+            margin-top: 3px;
         }
         
         textarea {
@@ -91,6 +137,24 @@
         }
         
         textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -133,20 +197,84 @@
             display: flex;
             gap: 10px;
             margin-top: 15px;
+            flex-wrap: wrap;
         }
         
-        .style-editor {
+        /* 텍스트 편집 툴바 */
+        .text-toolbar {
             background: white;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
         }
         
-        .style-row {
+        .toolbar-btn {
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .toolbar-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .toolbar-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .toolbar-separator {
+            width: 1px;
+            height: 24px;
+            background: #ddd;
+            margin: 0 4px;
+        }
+        
+        .toolbar-label {
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: 600;
+            padding: 0 8px;
+        }
+        
+        /* 스타일 편집기 */
+        .style-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .style-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .style-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
-            margin-bottom: 12px;
         }
         
         .style-field {
@@ -157,15 +285,8 @@
         .style-field label {
             font-size: 0.85rem;
             color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .style-field input,
-        .style-field select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9rem;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
         
         .color-picker-group {
@@ -176,9 +297,9 @@
         
         .color-picker-group input[type="color"] {
             width: 50px;
-            height: 35px;
-            border: none;
-            border-radius: 4px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
             cursor: pointer;
         }
         
@@ -186,6 +307,7 @@
             flex: 1;
         }
         
+        /* 정규식 규칙 */
         .regex-rules {
             background: white;
             padding: 15px;
@@ -223,11 +345,13 @@
             background: #c82333;
         }
         
+        /* 미리보기 */
         .preview-section {
             background: white;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 8px;
+            position: sticky;
+            top: 20px;
         }
         
         .preview-toggle {
@@ -279,6 +403,7 @@
             white-space: pre-wrap;
             word-break: break-all;
             position: relative;
+            margin-top: 15px;
         }
         
         .code-header {
@@ -292,50 +417,21 @@
             background: #28a745;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
+            transition: all 0.3s;
         }
         
         .copy-btn:hover {
             background: #218838;
+            transform: translateY(-2px);
         }
         
         .copy-btn.copied {
             background: #17a2b8;
-        }
-        
-        .accordion {
-            margin-top: 20px;
-        }
-        
-        .accordion-header {
-            background: #f1f3f5;
-            padding: 12px 15px;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-        }
-        
-        .accordion-header:hover {
-            background: #e9ecef;
-        }
-        
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        
-        .accordion-content.active {
-            max-height: 500px;
-            padding-top: 15px;
         }
         
         .info-box {
@@ -348,44 +444,131 @@
             color: #333;
         }
         
+        .alert-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+        
+        /* 반응형 */
         @media (max-width: 1200px) {
-            .workspace {
+            .two-column {
                 grid-template-columns: 1fr;
             }
+            
+            .preview-section {
+                position: static;
+            }
+        }
+        
+        /* 스크롤바 스타일 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
 <body>
     <div class="main-container">
         <div class="header">
-            <h1>🎨 로그 컨버터</h1>
-            <p>HTML 테마에 소설 내용을 삽입하고 스타일을 자유롭게 편집하세요</p>
+            <h1>🎨 로그 컨버터 Pro</h1>
+            <p>HTML 테마 편집 · 실시간 미리보기 · 마크다운 에디터</p>
         </div>
         
-        <div class="workspace">
-            <!-- 왼쪽 패널: 입력 섹션 -->
-            <div class="panel">
-                <div class="panel-title">📝 입력 영역</div>
-                
-                <div class="input-group">
-                    <label>
-                        1. HTML 테마 틀
-                        <small>본문이 들어갈 자리에 {{CONTENT}}를 넣어주세요</small>
-                    </label>
-                    <textarea id="themeInput" rows="8" placeholder="<details>...{{CONTENT}}...</details>"></textarea>
-                    <div class="button-group">
-                        <button class="btn btn-secondary btn-small" onclick="insertContentPlaceholder()">
-                            {{CONTENT}} 삽입
-                        </button>
-                        <button class="btn btn-secondary btn-small" onclick="loadSampleTheme()">
-                            샘플 테마 불러오기
-                        </button>
+        <!-- 탭 네비게이션 -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('input')">
+                📝 기본 입력
+            </button>
+            <button class="tab-btn" onclick="switchTab('style')">
+                ⚙️ 스타일 편집
+            </button>
+            <button class="tab-btn" onclick="switchTab('regex')">
+                🔧 정규식 규칙
+            </button>
+            <button class="tab-btn" onclick="switchTab('preview')">
+                👁️ 미리보기 & 코드
+            </button>
+        </div>
+        
+        <!-- 탭 1: 기본 입력 -->
+        <div id="tab-input" class="tab-content active">
+            <div class="two-column">
+                <div class="panel">
+                    <div class="panel-title">📝 HTML 테마 & 텍스트 입력</div>
+                    
+                    <div class="input-group">
+                        <label>
+                            HTML 테마 틀
+                            <small>본문이 들어갈 자리에 {{CONTENT}}를 넣어주세요</small>
+                        </label>
+                        <textarea id="themeInput" rows="10" placeholder="<details>...{{CONTENT}}...</details>" oninput="autoGenerate()"></textarea>
+                        <div class="button-group">
+                            <button class="btn btn-secondary btn-small" onclick="insertContentPlaceholder()">
+                                {{CONTENT}} 삽입
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="loadSampleTheme()">
+                                샘플 테마
+                            </button>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="input-group">
-                    <label>2. 소설 텍스트 입력</label>
-                    <textarea id="novelInput" rows="10" placeholder="소설 내용을 입력하세요.
+                    
+                    <div class="input-group">
+                        <label>소설 텍스트</label>
+                        
+                        <!-- 마크다운 편집 툴바 -->
+                        <div class="text-toolbar">
+                            <span class="toolbar-label">서식:</span>
+                            <button class="toolbar-btn" onclick="applyFormat('bold')" title="볼드 (Ctrl+B)">
+                                <strong>B</strong> 볼드
+                            </button>
+                            <button class="toolbar-btn" onclick="applyFormat('italic')" title="이탤릭 (Ctrl+I)">
+                                <em>I</em> 이탤릭
+                            </button>
+                            <button class="toolbar-btn" onclick="applyFormat('quote')" title="큰따옴표">
+                                " 대사
+                            </button>
+                            
+                            <div class="toolbar-separator"></div>
+                            
+                            <span class="toolbar-label">삽입:</span>
+                            <button class="toolbar-btn" onclick="insertElement('divider')" title="구분선">
+                                ━ 구분선
+                            </button>
+                            <button class="toolbar-btn" onclick="insertElement('linebreak')" title="줄바꿈 2개">
+                                ↵ 문단
+                            </button>
+                            <button class="toolbar-btn" onclick="insertElement('space')" title="공백 라인">
+                                ⎵ 여백
+                            </button>
+                            
+                            <div class="toolbar-separator"></div>
+                            
+                            <button class="toolbar-btn" onclick="clearFormat()" title="선택한 텍스트의 마크다운 제거">
+                                ✕ 서식 제거
+                            </button>
+                        </div>
+                        
+                        <textarea id="novelInput" rows="14" placeholder="소설 내용을 입력하세요.
+
+팁: 텍스트를 드래그한 뒤 위의 버튼을 클릭하면 마크다운이 적용됩니다!
 
 예시:
 그는 천천히 고개를 들었다.
@@ -394,146 +577,219 @@
 
 *칼날이 공기를 갈랐다.*
 
-그 순간, 모든 것이 멈췄다."></textarea>
-                </div>
-                
-                <!-- 스타일 편집기 -->
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion('styleEditor')">
-                        <span>⚙️ 스타일 편집기</span>
-                        <span id="styleEditorIcon">▼</span>
-                    </div>
-                    <div id="styleEditor" class="accordion-content">
-                        <div class="style-editor">
-                            <div class="style-row">
-                                <div class="style-field">
-                                    <label>대사 색상</label>
-                                    <div class="color-picker-group">
-                                        <input type="color" id="dialogColor" value="#8d735b" onchange="updateColorInput(this, 'dialogColorText')">
-                                        <input type="text" id="dialogColorText" value="#8d735b" onchange="updateColorPicker(this, 'dialogColor')">
-                                    </div>
-                                </div>
-                                <div class="style-field">
-                                    <label>강조 배경 색상</label>
-                                    <div class="color-picker-group">
-                                        <input type="color" id="highlightBg" value="#f0e6d6" onchange="updateColorInput(this, 'highlightBgText')">
-                                        <input type="text" id="highlightBgText" value="#f0e6d6" onchange="updateColorPicker(this, 'highlightBg')">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="style-row">
-                                <div class="style-field">
-                                    <label>자간 (letter-spacing)</label>
-                                    <input type="text" id="letterSpacing" value="-0.02em" placeholder="예: -0.02em">
-                                </div>
-                                <div class="style-field">
-                                    <label>줄간격 (line-height)</label>
-                                    <input type="text" id="lineHeight" value="2.1" placeholder="예: 2.1">
-                                </div>
-                            </div>
-                            
-                            <div class="style-row">
-                                <div class="style-field">
-                                    <label>문단 여백 (margin-bottom)</label>
-                                    <input type="text" id="paragraphMargin" value="25px" placeholder="예: 25px">
-                                </div>
-                                <div class="style-field">
-                                    <label>폰트 크기</label>
-                                    <input type="text" id="fontSize" value="1rem" placeholder="예: 1rem, 16px">
-                                </div>
-                            </div>
-                            
-                            <div class="style-row">
-                                <div class="style-field">
-                                    <label>대사 굵기</label>
-                                    <select id="dialogWeight">
-                                        <option value="normal">Normal</option>
-                                        <option value="bold" selected>Bold</option>
-                                        <option value="600">Semi-Bold (600)</option>
-                                        <option value="700">Bold (700)</option>
-                                    </select>
-                                </div>
-                                <div class="style-field">
-                                    <label>이탤릭 투명도</label>
-                                    <input type="text" id="italicOpacity" value="0.8" placeholder="0.0 ~ 1.0">
-                                </div>
-                            </div>
+그 순간, 모든 것이 멈췄다." oninput="autoGenerate()"></textarea>
+                        
+                        <div class="info-box" style="margin-top: 10px;">
+                            <strong>💡 단축키:</strong> Ctrl+B (볼드), Ctrl+I (이탤릭)
                         </div>
                     </div>
                 </div>
                 
-                <!-- 정규식 규칙 -->
-                <div class="accordion" style="margin-top: 10px;">
-                    <div class="accordion-header" onclick="toggleAccordion('regexRules')">
-                        <span>🔧 정규식 치환 규칙</span>
-                        <span id="regexRulesIcon">▼</span>
-                    </div>
-                    <div id="regexRules" class="accordion-content">
-                        <div class="regex-rules">
-                            <div class="info-box">
-                                <strong>기본 규칙:</strong><br>
-                                • "대사" → 색상/굵기 강조<br>
-                                • *이탤릭* → &lt;i&gt; 태그<br>
-                                • 빈 줄 → 문단 구분
-                            </div>
-                            
-                            <div id="customRegexList">
-                                <!-- 커스텀 정규식 항목들이 여기 추가됨 -->
-                            </div>
-                            
-                            <button class="btn btn-secondary btn-small" onclick="addRegexRule()">
-                                + 커스텀 규칙 추가
+                <div class="panel">
+                    <div class="panel-title">👁️ 실시간 미리보기</div>
+                    <div class="preview-section" style="position: static;">
+                        <div class="preview-toggle">
+                            <button id="pcPreviewBtn1" class="active" onclick="switchPreview('pc')">
+                                💻 PC
+                            </button>
+                            <button id="mobilePreviewBtn1" onclick="switchPreview('mobile')">
+                                📱 모바일
                             </button>
                         </div>
+                        
+                        <div id="previewContainer1" class="preview-container">
+                            <p style="text-align: center; color: #999; padding: 50px 20px;">
+                                내용을 입력하면 자동으로 미리보기가 표시됩니다
+                            </p>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="button-group" style="margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="generateLog()" style="flex: 1;">
-                        ✨ HTML 생성하기
-                    </button>
+            </div>
+        </div>
+        
+        <!-- 탭 2: 스타일 편집 -->
+        <div id="tab-style" class="tab-content">
+            <div class="alert-box">
+                ⚡ 스타일을 변경하면 자동으로 미리보기에 반영됩니다
+            </div>
+            
+            <div class="style-section">
+                <div class="style-section-title">🎨 색상 설정</div>
+                <div class="style-grid">
+                    <div class="style-field">
+                        <label>대사 색상</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="dialogColor" value="#8d735b" oninput="updateColorInput(this, 'dialogColorText'); autoGenerate()">
+                            <input type="text" id="dialogColorText" value="#8d735b" oninput="updateColorPicker(this, 'dialogColor'); autoGenerate()">
+                        </div>
+                    </div>
+                    <div class="style-field">
+                        <label>강조 배경 색상</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="highlightBg" value="#f0e6d6" oninput="updateColorInput(this, 'highlightBgText'); autoGenerate()">
+                            <input type="text" id="highlightBgText" value="#f0e6d6" oninput="updateColorPicker(this, 'highlightBg'); autoGenerate()">
+                        </div>
+                    </div>
+                    <div class="style-field">
+                        <label>본문 텍스트 색상</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="textColor" value="#3e2f24" oninput="updateColorInput(this, 'textColorText'); autoGenerate()">
+                            <input type="text" id="textColorText" value="#3e2f24" oninput="updateColorPicker(this, 'textColor'); autoGenerate()">
+                        </div>
+                    </div>
+                    <div class="style-field">
+                        <label>배경 색상</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="bgColor" value="#fcfaf5" oninput="updateColorInput(this, 'bgColorText'); autoGenerate()">
+                            <input type="text" id="bgColorText" value="#fcfaf5" oninput="updateColorPicker(this, 'bgColor'); autoGenerate()">
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <!-- 오른쪽 패널: 출력 섹션 -->
+            <div class="style-section">
+                <div class="style-section-title">📏 타이포그래피</div>
+                <div class="style-grid">
+                    <div class="style-field">
+                        <label>폰트 크기</label>
+                        <input type="text" id="fontSize" value="1rem" placeholder="예: 1rem, 16px" oninput="autoGenerate()">
+                    </div>
+                    <div class="style-field">
+                        <label>줄간격 (line-height)</label>
+                        <input type="text" id="lineHeight" value="2.1" placeholder="예: 2.1" oninput="autoGenerate()">
+                    </div>
+                    <div class="style-field">
+                        <label>자간 (letter-spacing)</label>
+                        <input type="text" id="letterSpacing" value="-0.02em" placeholder="예: -0.02em" oninput="autoGenerate()">
+                    </div>
+                    <div class="style-field">
+                        <label>문단 여백 (margin-bottom)</label>
+                        <input type="text" id="paragraphMargin" value="25px" placeholder="예: 25px" oninput="autoGenerate()">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="style-section">
+                <div class="style-section-title">✨ 강조 효과</div>
+                <div class="style-grid">
+                    <div class="style-field">
+                        <label>대사 굵기</label>
+                        <select id="dialogWeight" onchange="autoGenerate()">
+                            <option value="normal">Normal</option>
+                            <option value="500">Medium (500)</option>
+                            <option value="600">Semi-Bold (600)</option>
+                            <option value="bold" selected>Bold</option>
+                            <option value="700">Bold (700)</option>
+                            <option value="800">Extra Bold (800)</option>
+                        </select>
+                    </div>
+                    <div class="style-field">
+                        <label>이탤릭 투명도</label>
+                        <input type="number" id="italicOpacity" value="0.8" min="0" max="1" step="0.1" oninput="autoGenerate()">
+                    </div>
+                    <div class="style-field">
+                        <label>이탤릭 색상</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="italicColor" value="#666666" oninput="updateColorInput(this, 'italicColorText'); autoGenerate()">
+                            <input type="text" id="italicColorText" value="#666666" oninput="updateColorPicker(this, 'italicColor'); autoGenerate()">
+                        </div>
+                    </div>
+                    <div class="style-field">
+                        <label>볼드 색상</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="boldColor" value="#2c1810" oninput="updateColorInput(this, 'boldColorText'); autoGenerate()">
+                            <input type="text" id="boldColorText" value="#2c1810" oninput="updateColorPicker(this, 'boldColor'); autoGenerate()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="style-section">
+                <div class="style-section-title">🔲 레이아웃</div>
+                <div class="style-grid">
+                    <div class="style-field">
+                        <label>내부 패딩 (좌우)</label>
+                        <input type="text" id="paddingX" value="40px" placeholder="예: 40px" oninput="autoGenerate()">
+                    </div>
+                    <div class="style-field">
+                        <label>내부 패딩 (상하)</label>
+                        <input type="text" id="paddingY" value="50px" placeholder="예: 50px" oninput="autoGenerate()">
+                    </div>
+                    <div class="style-field">
+                        <label>최대 너비</label>
+                        <input type="text" id="maxWidth" value="700px" placeholder="예: 700px" oninput="autoGenerate()">
+                    </div>
+                    <div class="style-field">
+                        <label>모서리 둥글기</label>
+                        <input type="text" id="borderRadius" value="4px" placeholder="예: 4px" oninput="autoGenerate()">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 탭 3: 정규식 규칙 -->
+        <div id="tab-regex" class="tab-content">
             <div class="panel">
-                <div class="panel-title">👁️ 미리보기 & 결과</div>
+                <div class="panel-title">🔧 정규식 치환 규칙</div>
                 
-                <!-- 미리보기 -->
-                <div class="preview-section">
-                    <div class="preview-toggle">
-                        <button id="pcPreviewBtn" class="active" onclick="switchPreview('pc')">
-                            💻 PC 뷰
-                        </button>
-                        <button id="mobilePreviewBtn" onclick="switchPreview('mobile')">
-                            📱 모바일 뷰
-                        </button>
+                <div class="info-box">
+                    <strong>기본 규칙 (자동 적용):</strong><br>
+                    • "대사" → 색상/굵기 강조<br>
+                    • *이탤릭* → &lt;i&gt; 태그<br>
+                    • **볼드** → &lt;strong&gt; 태그<br>
+                    • --- → 구분선<br>
+                    • 빈 줄 → 문단 구분
+                </div>
+                
+                <div class="regex-rules">
+                    <div id="customRegexList">
+                        <!-- 커스텀 정규식 항목들이 여기 추가됨 -->
                     </div>
                     
-                    <div id="previewContainer" class="preview-container">
-                        <p style="text-align: center; color: #999; padding: 50px 20px;">
-                            HTML을 생성하면 여기에 미리보기가 표시됩니다
-                        </p>
+                    <button class="btn btn-secondary btn-small" onclick="addRegexRule()">
+                        + 커스텀 규칙 추가
+                    </button>
+                </div>
+                
+                <div class="alert-box" style="margin-top: 20px;">
+                    <strong>⚠️ 주의:</strong> 정규식 패턴은 JavaScript 정규식 문법을 따릅니다. 잘못된 패턴은 오류를 발생시킬 수 있습니다.
+                </div>
+            </div>
+        </div>
+        
+        <!-- 탭 4: 미리보기 & 코드 -->
+        <div id="tab-preview" class="tab-content">
+            <div class="two-column">
+                <div class="panel">
+                    <div class="panel-title">👁️ 최종 미리보기</div>
+                    <div class="preview-section" style="position: static;">
+                        <div class="preview-toggle">
+                            <button id="pcPreviewBtn3" class="active" onclick="switchPreview('pc')">
+                                💻 PC 뷰
+                            </button>
+                            <button id="mobilePreviewBtn3" onclick="switchPreview('mobile')">
+                                📱 모바일 뷰
+                            </button>
+                        </div>
+                        
+                        <div id="previewContainer3" class="preview-container">
+                            <p style="text-align: center; color: #999; padding: 50px 20px;">
+                                미리보기가 여기에 표시됩니다
+                            </p>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- HTML 코드 -->
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion('htmlCode')">
-                        <span>📄 HTML 코드</span>
-                        <span id="htmlCodeIcon">▼</span>
+                <div class="panel">
+                    <div class="panel-title">📄 HTML 코드</div>
+                    <div class="code-header">
+                        <span style="color: #333; font-weight: 600;">완성된 코드</span>
+                        <button class="copy-btn" id="copyBtn" onclick="copyToClipboard()">
+                            📋 복사하기
+                        </button>
                     </div>
-                    <div id="htmlCode" class="accordion-content">
-                        <div class="code-header">
-                            <span style="color: #abb2bf; font-weight: 600;">결과 코드</span>
-                            <button class="copy-btn" id="copyBtn" onclick="copyToClipboard()">
-                                📋 복사하기
-                            </button>
-                        </div>
-                        <div class="code-section" id="resultCode">
-                            // 생성된 HTML 코드가 여기 표시됩니다
-                        </div>
+                    <div class="code-section" id="resultCode">
+                        // 생성된 HTML 코드가 여기 표시됩니다
                     </div>
                 </div>
             </div>
@@ -543,6 +799,139 @@
     <script>
         let currentPreviewMode = 'pc';
         let customRegexRules = [];
+        let autoGenerateTimeout = null;
+        
+        // 키보드 단축키
+        document.getElementById('novelInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'b') {
+                    e.preventDefault();
+                    applyFormat('bold');
+                } else if (e.key === 'i') {
+                    e.preventDefault();
+                    applyFormat('italic');
+                }
+            }
+        });
+        
+        // 마크다운 서식 적용
+        function applyFormat(type) {
+            const textarea = document.getElementById('novelInput');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            
+            if (selectedText === '') {
+                alert('먼저 텍스트를 선택해주세요!');
+                return;
+            }
+            
+            let newText = '';
+            
+            switch(type) {
+                case 'bold':
+                    newText = `**${selectedText}**`;
+                    break;
+                case 'italic':
+                    newText = `*${selectedText}*`;
+                    break;
+                case 'quote':
+                    newText = `"${selectedText}"`;
+                    break;
+            }
+            
+            const before = textarea.value.substring(0, start);
+            const after = textarea.value.substring(end);
+            textarea.value = before + newText + after;
+            
+            // 커서 위치 조정
+            const newCursorPos = start + newText.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            textarea.focus();
+            
+            autoGenerate();
+        }
+        
+        // 요소 삽입
+        function insertElement(type) {
+            const textarea = document.getElementById('novelInput');
+            const cursorPos = textarea.selectionStart;
+            const before = textarea.value.substring(0, cursorPos);
+            const after = textarea.value.substring(cursorPos);
+            
+            let insertText = '';
+            
+            switch(type) {
+                case 'divider':
+                    insertText = '\n---\n';
+                    break;
+                case 'linebreak':
+                    insertText = '\n\n';
+                    break;
+                case 'space':
+                    insertText = '\n\n\n';
+                    break;
+            }
+            
+            textarea.value = before + insertText + after;
+            
+            // 커서 위치 조정
+            const newCursorPos = cursorPos + insertText.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            textarea.focus();
+            
+            autoGenerate();
+        }
+        
+        // 서식 제거
+        function clearFormat() {
+            const textarea = document.getElementById('novelInput');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            let selectedText = textarea.value.substring(start, end);
+            
+            if (selectedText === '') {
+                alert('먼저 텍스트를 선택해주세요!');
+                return;
+            }
+            
+            // 모든 마크다운 제거
+            selectedText = selectedText
+                .replace(/\*\*([^\*]+)\*\*/g, '$1')  // 볼드 제거
+                .replace(/\*([^\*]+)\*/g, '$1')      // 이탤릭 제거
+                .replace(/"([^"]*)"/g, '$1');        // 큰따옴표 제거
+            
+            const before = textarea.value.substring(0, start);
+            const after = textarea.value.substring(end);
+            textarea.value = before + selectedText + after;
+            
+            // 커서 위치 조정
+            const newCursorPos = start + selectedText.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            textarea.focus();
+            
+            autoGenerate();
+        }
+        
+        // 자동 생성 (디바운싱)
+        function autoGenerate() {
+            clearTimeout(autoGenerateTimeout);
+            autoGenerateTimeout = setTimeout(() => {
+                generateLog();
+            }, 500);
+        }
+        
+        // 탭 전환
+        function switchTab(tabName) {
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            // 모든 탭 컨텐츠 숨김
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 선택된 탭 활성화
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
         
         // 샘플 테마 불러오기
         function loadSampleTheme() {
@@ -561,6 +950,7 @@
   </div>
 </details>`;
             document.getElementById('themeInput').value = sampleTheme;
+            autoGenerate();
         }
         
         // {{CONTENT}} 플레이스홀더 삽입
@@ -572,6 +962,7 @@
             textarea.value = textBefore + '{{CONTENT}}' + textAfter;
             textarea.focus();
             textarea.setSelectionRange(cursorPos + 11, cursorPos + 11);
+            autoGenerate();
         }
         
         // 색상 피커와 텍스트 동기화
@@ -583,33 +974,48 @@
             document.getElementById(pickerId).value = text.value;
         }
         
-        // 아코디언 토글
-        function toggleAccordion(id) {
-            const content = document.getElementById(id);
-            const icon = document.getElementById(id + 'Icon');
-            content.classList.toggle('active');
-            icon.textContent = content.classList.contains('active') ? '▲' : '▼';
-        }
-        
         // 미리보기 모드 전환
         function switchPreview(mode) {
             currentPreviewMode = mode;
-            const container = document.getElementById('previewContainer');
-            const pcBtn = document.getElementById('pcPreviewBtn');
-            const mobileBtn = document.getElementById('mobilePreviewBtn');
+            const containers = ['previewContainer1', 'previewContainer3'];
+            const pcBtns = ['pcPreviewBtn1', 'pcPreviewBtn3'];
+            const mobileBtns = ['mobilePreviewBtn1', 'mobilePreviewBtn3'];
             
-            if (mode === 'mobile') {
-                container.classList.add('mobile');
-                mobileBtn.classList.add('active');
-                pcBtn.classList.remove('active');
-            } else {
-                container.classList.remove('mobile');
-                pcBtn.classList.add('active');
-                mobileBtn.classList.remove('active');
-            }
+            containers.forEach(id => {
+                const container = document.getElementById(id);
+                if (container) {
+                    if (mode === 'mobile') {
+                        container.classList.add('mobile');
+                    } else {
+                        container.classList.remove('mobile');
+                    }
+                }
+            });
+            
+            pcBtns.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    if (mode === 'pc') {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+            
+            mobileBtns.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    if (mode === 'mobile') {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
         }
         
-        // 커스텀 정규식 규칙 추가
+        // 커스텀 정규식 규칙 관리
         function addRegexRule() {
             const id = Date.now();
             customRegexRules.push({ id, pattern: '', replacement: '' });
@@ -619,6 +1025,7 @@
         function removeRegexRule(id) {
             customRegexRules = customRegexRules.filter(rule => rule.id !== id);
             renderRegexRules();
+            autoGenerate();
         }
         
         function renderRegexRules() {
@@ -638,7 +1045,10 @@
         
         function updateRegexRule(id, field, value) {
             const rule = customRegexRules.find(r => r.id === id);
-            if (rule) rule[field] = value;
+            if (rule) {
+                rule[field] = value;
+                autoGenerate();
+            }
         }
         
         // HTML 생성 메인 함수
@@ -647,32 +1057,41 @@
             let content = document.getElementById('novelInput').value;
             
             if (!theme.includes('{{CONTENT}}')) {
-                alert('테마 코드 안에 {{CONTENT}} 플레이스홀더가 필요합니다!');
-                return;
+                return; // 경고 없이 조용히 리턴
             }
             
             if (!content.trim()) {
-                alert('소설 텍스트를 입력해주세요!');
-                return;
+                return; // 내용 없으면 조용히 리턴
             }
             
             // 스타일 값 가져오기
             const dialogColor = document.getElementById('dialogColorText').value;
             const dialogWeight = document.getElementById('dialogWeight').value;
             const italicOpacity = document.getElementById('italicOpacity').value;
+            const italicColor = document.getElementById('italicColorText').value;
+            const boldColor = document.getElementById('boldColorText').value;
             const letterSpacing = document.getElementById('letterSpacing').value;
             const paragraphMargin = document.getElementById('paragraphMargin').value;
             const fontSize = document.getElementById('fontSize').value;
+            const lineHeight = document.getElementById('lineHeight').value;
+            const textColor = document.getElementById('textColorText').value;
             
-            // 1. 큰따옴표 대사 강조
+            // 1. 구분선 처리 (---를 <hr>로)
+            content = content.replace(/^---$/gm, '<hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">');
+            
+            // 2. 큰따옴표 대사 강조
             content = content.replace(/"([^"]*)"/g, 
                 `<span style="color: ${dialogColor}; font-weight: ${dialogWeight};">"$1"</span>`);
             
-            // 2. 이탤릭체 변환
-            content = content.replace(/\*([^\*]+)\*/g, 
-                `<i style="opacity: ${italicOpacity};">$1</i>`);
+            // 3. 볼드 처리 (**텍스트**)
+            content = content.replace(/\*\*([^\*]+)\*\*/g, 
+                `<strong style="color: ${boldColor};">$1</strong>`);
             
-            // 3. 커스텀 정규식 규칙 적용
+            // 4. 이탤릭체 변환 (*텍스트*)
+            content = content.replace(/\*([^\*]+)\*/g, 
+                `<i style="opacity: ${italicOpacity}; color: ${italicColor};">$1</i>`);
+            
+            // 5. 커스텀 정규식 규칙 적용
             customRegexRules.forEach(rule => {
                 if (rule.pattern && rule.replacement) {
                     try {
@@ -684,26 +1103,36 @@
                 }
             });
             
-            // 4. 문단 처리
-            const paragraphs = content.split('\n').filter(p => p.trim() !== '');
-            const htmlParagraphs = paragraphs.map(p => 
-                `<p style="margin-bottom: ${paragraphMargin}; letter-spacing: ${letterSpacing}; font-size: ${fontSize};">${p}</p>`
-            ).join('');
+            // 6. 문단 처리
+            const lines = content.split('\n');
+            const htmlParagraphs = [];
             
-            // 5. 테마와 결합
-            const finalHtml = theme.replace('{{CONTENT}}', htmlParagraphs);
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                // <hr> 태그는 그대로 유지
+                if (line.startsWith('<hr')) {
+                    htmlParagraphs.push(line);
+                } else if (line !== '') {
+                    htmlParagraphs.push(`<p style="margin-bottom: ${paragraphMargin}; letter-spacing: ${letterSpacing}; font-size: ${fontSize}; line-height: ${lineHeight}; color: ${textColor};">${line}</p>`);
+                }
+            }
+            
+            const finalContent = htmlParagraphs.join('');
+            
+            // 7. 테마와 결합
+            const finalHtml = theme.replace('{{CONTENT}}', finalContent);
             
             // 결과 표시
             document.getElementById('resultCode').textContent = finalHtml;
             
-            // 미리보기 표시
-            document.getElementById('previewContainer').innerHTML = finalHtml;
-            
-            // HTML 코드 아코디언 자동 열기
-            const htmlCodeSection = document.getElementById('htmlCode');
-            if (!htmlCodeSection.classList.contains('active')) {
-                toggleAccordion('htmlCode');
-            }
+            // 모든 미리보기 컨테이너에 표시
+            ['previewContainer1', 'previewContainer3'].forEach(id => {
+                const container = document.getElementById(id);
+                if (container) {
+                    container.innerHTML = finalHtml;
+                }
+            });
         }
         
         // 클립보드 복사
@@ -717,11 +1146,12 @@
             
             navigator.clipboard.writeText(code).then(() => {
                 const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
                 btn.textContent = '✅ 복사완료!';
                 btn.classList.add('copied');
                 
                 setTimeout(() => {
-                    btn.textContent = '📋 복사하기';
+                    btn.textContent = originalText;
                     btn.classList.remove('copied');
                 }, 2000);
             }).catch(err => {
